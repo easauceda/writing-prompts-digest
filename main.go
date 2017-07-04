@@ -20,9 +20,9 @@ var userAgent = "WritingPromptsDigest/0.1 by easauceda"
 var client = &http.Client{}
 
 type writingPrompt struct {
-	title   string
-	url     string
-	excerpt string
+	Title   string
+	URL     string
+	Excerpt string
 	ID      string
 }
 
@@ -40,7 +40,10 @@ func getExcerpts(promptID string, accessToken string) string {
 	req.Header.Add("Authorization", "Bearer "+accessToken)
 	req.Header.Set("User-Agent", userAgent)
 
-	resp, _ := client.Do(req)
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
+	}
 	respStr, _ := ioutil.ReadAll(resp.Body)
 	testStr, _ := jsonparser.GetString(respStr, "[1]", "data", "children", "[1]", "data", "body")
 	return fmt.Sprintf("%.500s...\n", testStr)
@@ -60,6 +63,7 @@ func getAccessToken() string {
 	if err != nil {
 		panic(err)
 	}
+
 	json.NewDecoder(resp.Body).Decode(&tokenResp)
 	defer resp.Body.Close()
 	tokenJSON := jsonq.NewQuery(tokenResp)
@@ -88,9 +92,19 @@ func getWritingPrompts(accessToken string, duration string) []writingPrompt {
 
 	for _, promptJSON := range prompts {
 		prompt := jsonq.NewQuery(promptJSON)
-		promptTitle, _ := prompt.String("data", "title")
-		promptID, _ := prompt.String("data", "id")
-		newWritingPrompt := writingPrompt{title: promptTitle, ID: promptID}
+		promptTitle, err := prompt.String("data", "title")
+		if err != nil {
+			panic(err)
+		}
+		promptID, err := prompt.String("data", "id")
+		if err != nil {
+			panic(err)
+		}
+		promptURL, err := prompt.String("data", "url")
+		if err != nil {
+			panic(err)
+		}
+		newWritingPrompt := writingPrompt{Title: promptTitle, ID: promptID, URL: promptURL}
 		writingPrompts = append(writingPrompts, newWritingPrompt)
 	}
 	return writingPrompts
