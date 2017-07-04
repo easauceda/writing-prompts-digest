@@ -8,7 +8,7 @@ pipeline {
   stages {
     stage('Hello World!') {
       steps {
-        sh 'ls'
+        sh 'go get'
       }
     }
   }
