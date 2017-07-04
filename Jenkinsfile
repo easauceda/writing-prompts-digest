@@ -16,5 +16,10 @@ pipeline {
         sh 'go build *.go'
       }
     }
+    stage('Deploy') {
+      steps {
+        echo 'Deployed!'
+      }
+    }
   }
 }
