@@ -8,7 +8,7 @@ pipeline {
   stages {
     stage('Hello World!') {
       steps {
-        sh 'go get'
+        sh 'go get github.com/easauceda/writing-prompt-digest'
       }
     }
   }
