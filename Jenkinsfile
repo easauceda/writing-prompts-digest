@@ -16,9 +16,14 @@ pipeline {
         sh 'go build *.go'
       }
     }
+    stage('Test') {
+      steps {
+        echo 'testing'
+      }
+    }
     stage('Deploy') {
       steps {
-        echo 'Deployed!'
+        echo 'Deploying!'
       }
     }
   }
