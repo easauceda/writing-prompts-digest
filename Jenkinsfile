@@ -1,14 +1,14 @@
 pipeline {
   agent {
     docker {
-      image 'busybox'
+      image 'golang'
     }
     
   }
   stages {
     stage('Hello World!') {
       steps {
-        sh 'echo hi'
+        sh 'ls'
       }
     }
   }
