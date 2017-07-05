@@ -39,13 +39,12 @@ type writingPromptEmail struct {
 }
 
 func main() {
-	digest := writingPromptEmail{"easauceda@gmail.com", []string{"easauceda@gmail.com"}, "New Stories for You!", ""}
-	// TODO: move 44-48 to generateDigest()
 	accessToken := getAccessToken()
-	prompts := getWritingPrompts(accessToken, duration)
+	prompts := getWritingPrompts(accessToken)
 	for i, prompt := range prompts {
 		prompts[i].Excerpt = getExcerpts(prompt.ID, accessToken)
 	}
+	digest := writingPromptEmail{"easauceda@gmail.com", []string{"easauceda@gmail.com"}, "New Stories for You!", ""}
 	digest.body = generateDigest(prompts)
 	sendEmail(digest)
 }
@@ -57,7 +56,8 @@ func sendEmail(digest writingPromptEmail) {
 	msg := []byte(subject + mime + "\n" + digest.body)
 	addr := "smtp.gmail.com:587"
 
-	if err := smtp.SendMail(addr, auth, "easauceda@gmail.com", digest.to, msg); err != nil {
+	err := smtp.SendMail(addr, auth, "easauceda@gmail.com", digest.to, msg)
+	if err != nil {
 		panic(err)
 	}
 }
@@ -98,7 +98,7 @@ func getAccessToken() string {
 	return token
 }
 
-func getWritingPrompts(accessToken string, duration string) []writingPrompt {
+func getWritingPrompts(accessToken string) []writingPrompt {
 	var writingPrompts = make([]writingPrompt, 0)
 	var promptResp map[string]interface{}
 
