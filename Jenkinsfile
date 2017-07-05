@@ -3,8 +3,7 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        sh 'curl -o ca-certificates.crt https://raw.githubusercontent.com/bagder/ca-bundle/master/ca-bundle.crt'
-        sh 'docker build -t wpd .'
+        sh 'docker build -t wpd:$(GIT_COMMIT) .'
       }
     }
     stage('Deploy') {
