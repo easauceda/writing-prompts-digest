@@ -3,7 +3,8 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        sh 'docker build -t wpd:$(GIT_COMMIT) .'
+        sh 'env'
+        //sh 'docker build -t wpd:$(GIT_COMMIT) .'
       }
     }
     stage('Deploy') {
