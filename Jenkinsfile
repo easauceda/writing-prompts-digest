@@ -3,7 +3,7 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        sh 'env'
+        sh "echo ${git rev-parse --short HEAD}"
         //sh 'docker build -t wpd:$(GIT_COMMIT) .'
       }
     }
