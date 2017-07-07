@@ -7,7 +7,7 @@ pipeline {
     stage('Build') {
       steps {
         sh 'printenv'
-        sh "docker build -t quay.io/easauceda/writing-prompts-digest:`git rev-parse HEAD`."
+        sh "docker build -t quay.io/easauceda/writing-prompts-digest:`git rev-parse HEAD` ."
       }
     }
     stage('Deploy') {
