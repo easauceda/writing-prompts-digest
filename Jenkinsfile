@@ -3,7 +3,7 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        sh "export GIT_SHA=$(git rev-parse HEAD)"
+        sh "export GIT_SHA=\$(git rev-parse HEAD)"
         sh "docker build -t quay.io/easauceda/writing-prompts-digest:$GIT_SHA."
       }
     }
