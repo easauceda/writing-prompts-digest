@@ -1,12 +1,8 @@
 pipeline {
   agent any
-  environment {
-    GIT_SHA = sh "git rev-parse HEAD" 
-  }
   stages {
     stage('Build') {
       steps {
-        sh 'printenv'
         sh "docker build -t quay.io/easauceda/writing-prompts-digest:`git rev-parse HEAD` ."
       }
     }

@@ -1,0 +1,13 @@
+sudo: enabled
+services:
+- docker
+script:
+- docker build -t quay.io/easauceda/writing-prompts-digest:$(TRAVIS_COMMIT) .
+deploy:
+  provider: script
+  script:
+  - docker login -u=$(QUAY_USERNAME) -p=$(QUAY_PW) quay.io
+  - docker push -t quay.io/easauceda/writing-prompts-digest:$(TRAVIS_COMMIT)
+env:
+  global:
+    secure: tQHny5/qVQo0BygP3Djuf5lnS8bToAZFK7Jjq4gdotMsXC/cf9Z28sAW2RPWz7PvsNIEtlySMccYJf0GwvAdnKxU39G0u5q7EwSh+YO/f7fRJ8aJa2RFGppcSkFDt5yINp1OcgLJJtgKkZBokUcub5mduolyPJdmHYuPwWhRw2tCW1P8txZbgIlTOmVxsL7WrxQZ5RCgCEMoyRDOB+oHz2wqdbZ2M/FU86YWbAke8bbtsW5Qy5GpBT8K4u1NvPAJeFTl31VfsI6FRdjGoThxOu2Z6d0zDdLFnQuE/mmrXnQzEL34mLXecoFbn/OjoKQ5kjcXeSECgXSscOBTIfTc29oc8YIPdTdFXIyvd/V/Lq3pfu1stWVnOOkligEJVl8JtbZa5nleKbrZV+Kpx631ijObJ+C7FMe3FdnYRoe2B/SCQzqdQhS3F02NnjNsTwaX4+QL6JoeV9JZ3VkFcqljOTRpWKiSXGfYrqNI2uEMi1aZM4bmqwxdNpq9Ep9mOzobkCEKWDqwk/JnMNodHXx16O9gf42M+z1rRcHR/r8cPeNQUc074PLmnU8dyhmbypLs7Q8zlgxRThICuFZgCEBMXfaaMUf+PWEi4SN0BUxlCY0bsRw8wjoxS02i0hLbmkwQ0+LK4MW7t1omCbLyjNBIOmgQW4AkknGmV0KeUwPMOKw=
