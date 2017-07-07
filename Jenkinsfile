@@ -7,6 +7,9 @@ pipeline {
       }
     }
     stage('Deploy') {
+      when {
+        branch 'master'
+      }
       steps {
         withCredentials([usernamePassword(credentialsId: 'quay_credentials', passwordVariable: 'quay_pw', usernameVariable: 'quay_username')]) {
           sh "docker login -u=${quay_username} -p=${quay_pw} quay.io"
