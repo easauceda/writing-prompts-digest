@@ -3,9 +3,8 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"github.com/buger/jsonparser"
-	"github.com/jmoiron/jsonq"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -13,6 +12,13 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
+
+	"strconv"
+
+	"github.com/buger/jsonparser"
+	"github.com/jmoiron/jsonq"
+	log "github.com/sirupsen/logrus"
 )
 
 var refreshToken = os.Getenv("TOKEN")
@@ -39,7 +45,11 @@ type writingPromptEmail struct {
 }
 
 func main() {
-	accessToken := getAccessToken()
+	log.Info("Generating Writing Prompts Digest for the Week of ", time.Now().Local().Format("Mon Jan 1, 2006"))
+	accessToken, err := getAccessToken(refreshToken, clientID, clientSecret)
+	if err != nil {
+		log.Fatal(err)
+	}
 	prompts := getWritingPrompts(accessToken)
 	for i, prompt := range prompts {
 		prompts[i].Excerpt = getExcerpts(prompt.ID, accessToken)
@@ -67,16 +77,28 @@ func getExcerpts(promptID string, accessToken string) string {
 	req.Header.Add("Authorization", "Bearer "+accessToken)
 	req.Header.Set("User-Agent", userAgent)
 
+	log.Debug("Requesting Excerpt for ", promptID)
 	resp, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		log.Fatal("Error getting an except from ", promptID, err)
 	}
 	respStr, _ := ioutil.ReadAll(resp.Body)
 	testStr, _ := jsonparser.GetString(respStr, "[1]", "data", "children", "[1]", "data", "body")
 	return fmt.Sprintf("%.500s...\n", testStr)
 }
 
-func getAccessToken() string {
+func getAccessToken(refreshToken string, clientID string, clientSecret string) (string, error) {
+	// Ensure environment variables are set.
+	if refreshToken == "" {
+		return "", errors.New("missing TOKEN environment variable")
+	}
+	if clientID == "" {
+		return "", errors.New("missing CLIENT_ID environment variable")
+	}
+	if clientSecret == "" {
+		return "", errors.New("missing CLIENT_SECRET environment variable")
+	}
+
 	var tokenResp map[string]interface{}
 	data := url.Values{}
 	data.Set("grant_type", "refresh_token")
@@ -87,15 +109,21 @@ func getAccessToken() string {
 	req.Header.Set("User-Agent", userAgent)
 
 	resp, err := client.Do(req)
+	if resp.StatusCode != 200 {
+		return "", errors.New("error requesting access token, status code " + strconv.Itoa(resp.StatusCode))
+	}
 	if err != nil {
-		panic(err)
+		log.Fatal("Error requesting Access Token", err)
 	}
 
 	json.NewDecoder(resp.Body).Decode(&tokenResp)
 	defer resp.Body.Close()
 	tokenJSON := jsonq.NewQuery(tokenResp)
-	token, _ := tokenJSON.String("access_token")
-	return token
+	token, err := tokenJSON.String("access_token")
+	if err != nil {
+		log.Fatal(err)
+	}
+	return token, nil
 }
 
 func getWritingPrompts(accessToken string) []writingPrompt {
