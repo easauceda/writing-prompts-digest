@@ -11,3 +11,8 @@ install:
   - docker build -t quay.io/easauceda/writing-prompts-digest:${TRAVIS_COMMIT} .
 script:
   - docker run $(docker images --filter "label=builder=true" -q) go test -v
+deploy:
+  skip_cleanup: true
+  script: "docker login -u ${QUAY_LOGIN} -p ${QUAY_PASSWORD} quay.io && docker push quay.io/easauceda/writing-prompts-digest:${TRAVIS_COMMIT}"
+  on:
+    branch: master
