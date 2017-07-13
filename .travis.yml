@@ -1,0 +1,8 @@
+sudo: required
+services:
+  - docker
+language: go
+before_install: 
+  - docker build -t quay.io/easauceda/writing-prompts-digest:${TRAVIS_COMMIT}
+script:
+  - docker run $(docker images --filter "label=builder=true" -q) go test -v
