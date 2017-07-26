@@ -8,12 +8,12 @@ before_install:
   - sudo apt-get update
   - sudo apt-get -y install docker-ce
 install: 
-  - docker build -t quay.io/easauceda/writing-prompts-digest:${TRAVIS_COMMIT} .
+  - docker build -t quay.io/easauceda/writing-prompts-digest:${TRAVIS_COMMIT} -t quay.io/easauceda/writing-prompts-digest:latest .
 script:
   - docker run $(docker images --filter "label=builder=true" -q) go test -v
 deploy:
   provider: script
   skip_cleanup: true
-  script: "docker login -u ${QUAY_LOGIN} -p ${QUAY_PASSWORD} quay.io && docker push quay.io/easauceda/writing-prompts-digest:${TRAVIS_COMMIT}"
+  script: "docker login -u ${QUAY_LOGIN} -p ${QUAY_PASSWORD} quay.io && docker push quay.io/easauceda/writing-prompts-digest:${TRAVIS_COMMIT} && docker push quay.io/easauceda/writing-prompts-digest:latest"
   on:
     branch: master
