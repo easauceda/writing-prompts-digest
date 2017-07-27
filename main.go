@@ -45,7 +45,7 @@ type writingPromptEmail struct {
 }
 
 func main() {
-	log.Info("Generating Writing Prompts Digest for the Week of ", time.Now().Local().Format("Mon Jan 1, 2006"))
+	log.Info("Generating Writing Prompts Digest for ", time.Now().Local().Format("Mon Jan 1, 2006"))
 	accessToken, err := getAccessToken(refreshToken, clientID, clientSecret)
 	if err != nil {
 		log.Fatal(err)
@@ -130,7 +130,7 @@ func getWritingPrompts(accessToken string) []writingPrompt {
 	var writingPrompts = make([]writingPrompt, 0)
 	var promptResp map[string]interface{}
 
-	req, _ := http.NewRequest("GET", "https://oauth.reddit.com/r/writingprompts/top.json?limit=5&t=week", nil)
+	req, _ := http.NewRequest("GET", "https://oauth.reddit.com/r/writingprompts/top.json?limit=5&t=day", nil)
 	req.Header.Add("Authorization", "Bearer "+accessToken)
 	req.Header.Set("User-Agent", userAgent)
 	resp, err := client.Do(req)
