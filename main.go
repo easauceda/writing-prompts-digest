@@ -26,6 +26,7 @@ var duration = os.Getenv("DURATION")
 var clientID = os.Getenv("CLIENT_ID")
 var clientSecret = os.Getenv("CLIENT_SECRET")
 var emailPassword = os.Getenv("EMAIL_PASSWORD")
+var emailAddress = os.Getenv("EMAIL_ADDRESS")
 var userAgent = "WritingPromptsDigest/0.1 by easauceda"
 var client = &http.Client{}
 var auth smtp.Auth
@@ -54,19 +55,19 @@ func main() {
 	for i, prompt := range prompts {
 		prompts[i].Excerpt = getExcerpts(prompt.ID, accessToken)
 	}
-	digest := writingPromptEmail{"easauceda@gmail.com", []string{"easauceda@gmail.com"}, "New Stories for You!", ""}
+	digest := writingPromptEmail{emailAddress, []string{emailAddress}, "New Stories for You!", ""}
 	digest.body = generateDigest(prompts)
 	sendEmail(digest)
 }
 
 func sendEmail(digest writingPromptEmail) {
-	auth = smtp.PlainAuth("", "easauceda@gmail.com", emailPassword, "smtp.gmail.com")
+	auth = smtp.PlainAuth("", emailAddress, emailPassword, "smtp.gmail.com")
 	mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
 	subject := "Subject: " + digest.subject + "\n"
 	msg := []byte(subject + mime + "\n" + digest.body)
 	addr := "smtp.gmail.com:587"
 
-	err := smtp.SendMail(addr, auth, "easauceda@gmail.com", digest.to, msg)
+	err := smtp.SendMail(addr, auth, emailAddress, digest.to, msg)
 	if err != nil {
 		panic(err)
 	}
