@@ -17,6 +17,7 @@ import (
 
 	"github.com/buger/jsonparser"
 	"github.com/jmoiron/jsonq"
+	mailjet "github.com/mailjet/mailjet-apiv3-go"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -52,19 +53,29 @@ func main() {
 	digestBody := generateDigest(prompts)
 
 	digest := writingPromptEmail{emailAddress, []string{emailAddress}, "New Stories for You!", digestBody}
-	sendEmail(digest)
+	sendEmails(digest)
 }
 
-func sendEmail(digest writingPromptEmail) {
-	auth = smtp.PlainAuth("", emailAddress, emailPassword, "smtp.gmail.com")
-	mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
-	subject := "Subject: " + digest.subject + "\n"
-	msg := []byte(subject + mime + "\n" + digest.body)
-	addr := "smtp.gmail.com:587"
+func sendEmails(digest writingPromptEmail) {
+	mailjetClient := mailjet.NewMailjetClient(os.Getenv("MJ_APIKEY_PUBLIC"), os.Getenv("MJ_APIKEY_PRIVATE"))
+	email := &mailjet.InfoSendMail{
+		FromEmail: "writingprompts@ericksauceda.org",
+		FromName:  "Writing Prompts",
+		Recipients: []mailjet.Recipient{
+			mailjet.Recipient{
+				Email: "easauceda@gmail.com",
+			},
+		},
+		Subject:  digest.subject,
+		HTMLPart: digest.body,
+	}
 
-	err := smtp.SendMail(addr, auth, emailAddress, digest.to, msg)
+	res, err := mailjetClient.SendMail(email)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+	} else {
+		fmt.Println("Success")
+		fmt.Println(res)
 	}
 }
 
