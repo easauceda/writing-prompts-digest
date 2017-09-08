@@ -25,7 +25,6 @@ var refreshToken = os.Getenv("TOKEN")
 var duration = os.Getenv("DURATION")
 var clientID = os.Getenv("CLIENT_ID")
 var clientSecret = os.Getenv("CLIENT_SECRET")
-var emailPassword = os.Getenv("EMAIL_PASSWORD")
 var emailAddress = os.Getenv("EMAIL_ADDRESS")
 var userAgent = "WritingPromptsDigest/0.1 by easauceda"
 var client = &http.Client{}
@@ -51,32 +50,40 @@ func main() {
 	accessToken := getAccessToken(refreshToken, clientID, clientSecret)
 	prompts := getWritingPrompts(&accessToken)
 	digestBody := generateDigest(prompts)
+	digestRecipients := getRecipients()
 
-	digest := writingPromptEmail{emailAddress, []string{emailAddress}, "New Stories for You!", digestBody}
+	digest := writingPromptEmail{emailAddress, digestRecipients, "New Stories for You!", digestBody}
 	sendEmails(digest)
 }
 
 func sendEmails(digest writingPromptEmail) {
-	mailjetClient := mailjet.NewMailjetClient(os.Getenv("MJ_APIKEY_PUBLIC"), os.Getenv("MJ_APIKEY_PRIVATE"))
-	email := &mailjet.InfoSendMail{
-		FromEmail: "writingprompts@ericksauceda.org",
-		FromName:  "Writing Prompts",
-		Recipients: []mailjet.Recipient{
-			mailjet.Recipient{
-				Email: "easauceda@gmail.com",
-			},
-		},
-		Subject:  digest.subject,
-		HTMLPart: digest.body,
-	}
+	var emails = make([]mailjet.InfoMessagesV31, 0)
+	senderName := "Writing Prompts Digest"
 
-	res, err := mailjetClient.SendMail(email)
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println("Success")
-		fmt.Println(res)
+	mailjetClient := mailjet.NewMailjetClient(os.Getenv("MJ_APIKEY_PUBLIC"), os.Getenv("MJ_APIKEY_PRIVATE"))
+
+	for _, recipient := range digest.to {
+		email := mailjet.InfoMessagesV31{
+			From: &mailjet.RecipientV31{
+				Email: digest.from,
+				Name:  senderName,
+			},
+			To: &mailjet.RecipientsV31{
+				mailjet.RecipientV31{
+					Email: recipient,
+				},
+			},
+			Subject:  digest.subject,
+			HTMLPart: digest.body,
+		}
+		emails = append(emails, email)
 	}
+	preppedEmails := mailjet.MessagesV31{Info: emails}
+	res, err := mailjetClient.SendMailV31(&preppedEmails)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Data: %+v\n", res)
 }
 
 func getExcerpts(promptID string, accessToken *string) string {
