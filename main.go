@@ -52,7 +52,7 @@ func main() {
 	digestBody := generateDigest(prompts)
 	digestRecipients := getRecipients()
 
-	digest := writingPromptEmail{emailAddress, digestRecipients, "New Stories for You!", digestBody}
+	digest := writingPromptEmail{emailAddress, digestRecipients, "New Stories for " + time.Now().Local().Format("Mon Jan 1, 2006"), digestBody}
 	sendEmails(digest)
 }
 
