@@ -45,7 +45,7 @@ type writingPromptEmail struct {
 }
 
 func main() {
-	log.Info("Generating Writing Prompts Digest for ", time.Now().Local().Format("Mon Jan 1, 2006"))
+	log.Info("Generating Writing Prompts Digest for ", time.Now().Local().Format("Monday, January 2"))
 
 	accessToken := getAccessToken(refreshToken, clientID, clientSecret)
 	prompts := getWritingPrompts(&accessToken)
