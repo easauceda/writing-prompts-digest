@@ -135,7 +135,7 @@ func getWritingPrompts(accessToken *string) []writingPrompt {
 	var writingPrompts = make([]writingPrompt, 0)
 	var promptResp map[string]interface{}
 
-	req, _ := http.NewRequest("GET", "https://oauth.reddit.com/r/writingprompts/top.json?limit=5&t=day", nil)
+	req, _ := http.NewRequest("GET", "https://oauth.reddit.com/r/writingprompts/top.json?limit=5&t=week", nil)
 	req.Header.Add("Authorization", "Bearer "+*accessToken)
 	req.Header.Set("User-Agent", userAgent)
 	resp, err := client.Do(req)
